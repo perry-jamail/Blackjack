@@ -9,9 +9,9 @@
         static List<int> playerDrawnValuesList;
         static List<int> dealerDrawnValuesList;
         static Card dealerSecondDraw;
-        static int credit = 1000;
+        static int credit = 500;
         static int min = 5;
-        static int max = 500;
+        static int max = 3000;
         static Boolean winner;
 
         static void Main(string[] args)
@@ -85,15 +85,15 @@
             if (betValue >= min && betValue <= max && betValue <= credit)
             {
                 Console.WriteLine($"You are betting ${betValue} credits. Good luck!");
+                credit -= betValue;
                 PlayGame();
                 if (winner)
                 {
                     credit += betValue * 2;
                     Console.WriteLine();
-                    Console.WriteLine($"Congrats on winning ${betValue * 2} credits! You now have ${credit} credits!");
+                    Console.WriteLine($"Congrats on winning ${betValue} credits! You now have ${credit} credits!");
                 } else
                 {
-                    credit -= betValue;
                     Console.WriteLine();
                     Console.WriteLine($"You lost ${betValue} credits on this hand. You now have ${credit} credits remaining. Better luck next time!");
                 }
