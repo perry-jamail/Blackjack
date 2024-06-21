@@ -9,6 +9,10 @@
         static List<int> playerDrawnValuesList;
         static List<int> dealerDrawnValuesList;
         static Card dealerSecondDraw;
+        static int credit = 1000;
+        static int min = 5;
+        static int max = 500;
+        static Boolean winner;
 
         static void Main(string[] args)
         {
@@ -18,30 +22,92 @@
         public static void WelcomeOptions()
         {
             string initialChoice = "-1";
-            while (initialChoice != "0")
+            Console.WriteLine("Welcome to Blackjack!\n\t1) Play\n\t2) Read Rules\n\t0) Quit");
+            Console.Write("> ");
+            initialChoice = Console.ReadLine();
+            if (initialChoice == "1")
             {
-                Console.WriteLine("Welcome to Blackjack!\n\t1) Play\n\t2) Read Rules\n\t0) Quit");
+                StartGame();
+            } 
+            else if (initialChoice == "2")
+            {
+                Console.WriteLine(ReadRules());
+                WelcomeOptions();
+            }
+            else if (initialChoice == "0")
+            {
+                Console.WriteLine("Goodbye!");
+            } else
+            {
+                Console.WriteLine();
+                WelcomeOptions();
+            }
+            Console.WriteLine();
+        }
+
+        public static void StartGame()
+        {
+            Console.WriteLine();
+            Console.WriteLine($"You have started a new session and your starting credits are ${credit}. The minimum bet is ${min} and the maximum is ${max}.");
+
+            string secondChoice = "-1";
+            while (secondChoice != "0" && credit > 0)
+            {
+                Console.WriteLine("\t1) Place bet and start new hand\n\t2) Check credits\n\t0) Quit");
                 Console.Write("> ");
-                initialChoice = Console.ReadLine();
-                if (initialChoice == "1")
+                secondChoice = Console.ReadLine();
+                switch (secondChoice)
                 {
-                    PlayGame();
-                } 
-                else if (initialChoice == "2")
-                {
-                    Console.WriteLine(ReadRules());
-                }
-                else if (initialChoice == "0")
-                {
-                    Console.WriteLine("Goodbye!");
+                    case "1":
+                        ManageBet();
+                        break;
+
+                    case "2":
+                        Console.WriteLine($"You currently have ${credit} credits.");
+                        break;
+
+                    case "0":
+                        Console.WriteLine($"You left with ${credit} credits, goodbye!");
+                        break;
                 }
                 Console.WriteLine();
             }
         }
 
+        public static void ManageBet()
+        {
+            string stringBetValue;
+            int betValue;
+            Console.WriteLine();
+            Console.Write("Place your bet: >");
+            stringBetValue = Console.ReadLine();
+            betValue = Int32.Parse(stringBetValue);
+            if (betValue >= min && betValue <= max && betValue <= credit)
+            {
+                Console.WriteLine($"You are betting ${betValue} credits. Good luck!");
+                PlayGame();
+                if (winner)
+                {
+                    credit += betValue * 2;
+                    Console.WriteLine();
+                    Console.WriteLine($"Congrats on winning ${betValue * 2} credits! You now have ${credit} credits!");
+                } else
+                {
+                    credit -= betValue;
+                    Console.WriteLine();
+                    Console.WriteLine($"You lost ${betValue} credits on this hand. You now have ${credit} credits remaining. Better luck next time!");
+                }
+            } else
+            {
+                Console.WriteLine($"Invalid bet. Place a bet greater than or equal to ${min}, less than or equal to {max}, and less than or equal to your total current credits, which is ${credit}.");
+                ManageBet();
+            }
+
+        }
+
         public static string ReadRules()
         {
-            return "Blackjack is an incredibly popular, exciting and easy card game to play. " +
+            return "\nBlackjack is an incredibly popular, exciting and easy card game to play. " +
                 "The object is to have a hand with a total value higher than the dealer’s without going over 21. " +
                 "Kings, Queens, Jacks and Tens are worth a value of 10. An Ace has the value of 1 or 11. " +
                 "The remaining cards are counted at face value.\n\nYou are dealt two cards " +
@@ -50,7 +116,7 @@
                 "‘hit’ or ‘stay’. You can continue to draw cards until you are happy with your hand.\n\nOnce " +
                 "you have taken your turn the dealer draws another card for their hand. They must draw until they" +
                 " reach 17 or more.\n\nOnce all cards are drawn, whoever has a total closer to 21 wins. If player's" +
-                " hand and dealer's hand have an equal value, it's a tie.";
+                " hand and dealer's hand have an equal value, it's a tie.\n";
         }
 
         public static void PlayGame()
@@ -91,10 +157,12 @@
             if (playerValue == 21)
             {
                 Console.WriteLine($"You have Blackjack with the {playerFirstDraw.Name} and the {playerSecondDraw.Name}! You won!");
+                winner = true;
             }
             else if (dealerValue == 21)
             {
                 Console.WriteLine($"Dealer has Blackjack with the {dealerFirstDraw.Name} and the {dealerSecondDraw.Name}. You lost.");
+                winner = false;
             }
             else
             {
@@ -137,11 +205,13 @@
                         {
                             Console.WriteLine($"You drew the {playerDraw.Name} and now have Blackjack! You won!");
                             stayHitChoice = "stay";
+                            winner = true;
                         }
                         else
                         {
                             Console.WriteLine($"You have drawn the {playerDraw.Name}, putting your value over 21, at {playerValue}. You lost.");
                             stayHitChoice = "stay";
+                            winner = false;
                         }
                     }
                     else if (stayHitChoice == "stay")
@@ -217,11 +287,13 @@
                     {
                         Console.WriteLine($"Dealer drew the {dealerDraw.Name}, putting the dealer value at 21. Dealer Blackjack, you lost.");
                         dealerStayHitChoice = "stay";
+                        winner = false;
                     }
                     else
                     {
                         Console.WriteLine($"Dealer drew the {dealerDraw.Name}, putting the dealer value above 21, at {dealerValue}. You won!");
                         dealerStayHitChoice = "stay";
+                        winner = true;
                     }
                 }
             }
@@ -232,14 +304,17 @@
             if (playerValue > dealerValue)
             {
                 Console.WriteLine($"You have {playerValue} and the dealer has {dealerValue}, you won!");
+                winner = true;
             }
             else if (playerValue == dealerValue)
             {
                 Console.WriteLine($"You have {playerValue} and the dealer has {dealerValue}, you tied!");
+                winner = true;
             }
             else
             {
                 Console.WriteLine($"You have {playerValue} and the dealer has {dealerValue}, you lost.");
+                winner = false;
             }
         }
     }
